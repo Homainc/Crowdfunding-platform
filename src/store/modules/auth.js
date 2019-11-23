@@ -4,7 +4,6 @@ import {
   AUTH_SUCCESS,
   AUTH_ERROR,
   AUTH_LOGOUT,
-  USER_REQUEST,
   SIGNUP_REQUEST,
   SIGNUP_ERROR }
 from '@/store/mutations'
@@ -39,7 +38,7 @@ const mutations = {
     }
 };
 const actions = {
-    [AUTH_REQUEST]: ({ commit, dispatch }, user) => {
+    [AUTH_REQUEST]: ({ commit }, user) => {
       return new Promise((resolve, reject) => {
         commit(AUTH_REQUEST);
         Axios.post(URL_SIGN_IN, user)
@@ -51,7 +50,7 @@ const actions = {
             const token = response.result.token;
             localStorage.setItem('user-token', token);
             commit(AUTH_SUCCESS, token);
-            dispatch(USER_REQUEST);
+            //dispatch(USER_REQUEST);
             resolve(resp);
           })
           .catch(err => {
@@ -94,6 +93,7 @@ const actions = {
 const getters = {
     isAuthenticated: state => !!state.token,
     authStatus: state => state.status,
+    token: state => state.token,
 };
 
 export default {

@@ -14,3 +14,6 @@ export const PROJECTS_ERROR = 'projects_error';
 export const PROJECT_INFO_REQUEST = 'project_info_request';
 export const PROJECT_INFO_ERROR = 'project_info_error';
 export const PROJECT_INFO_SUCCESS = 'project_info_success';
+export const ADD_PROJECT_PAYMENT = 'add_project_payment';
+export const PROJECT_PAYMENT_SUCCESS = 'project_payment_success';
+export const PROJECT_PAYMENT_ERROR = 'project_payment_error';

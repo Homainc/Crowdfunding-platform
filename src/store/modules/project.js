@@ -1,5 +1,5 @@
 import Axios from 'axios';
-import { URL_PROJECTS } from '@/store/api'
+import { URL_PROJECTS, URL_PAYMENTS } from '@/store/api'
 import { 
     PROJECTS_REQUEST,
     PROJECTS_SUCCESS,
@@ -7,6 +7,9 @@ import {
     PROJECT_INFO_REQUEST,
     PROJECT_INFO_SUCCESS,
     PROJECT_INFO_ERROR,
+    ADD_PROJECT_PAYMENT,
+    PROJECT_PAYMENT_SUCCESS,
+    PROJECT_PAYMENT_ERROR
 } from '@/store/mutations'
 
 const state = {
@@ -38,6 +41,17 @@ const mutations = {
     [PROJECT_INFO_ERROR]: (state, errors) => {
         state.status = 'error';
         state.errors = errors;
+    },
+    [ADD_PROJECT_PAYMENT]: (state) => {
+        state.status = 'loading';
+    },
+    [PROJECT_PAYMENT_SUCCESS]: (state) => {
+        state.status = 'success';
+
+    },
+    [PROJECT_PAYMENT_ERROR]: (state, errors) => {
+        state.status = 'error';
+        state.errors = errors;
     }
 };
 
@@ -51,9 +65,11 @@ const actions = {
                         commit(PROJECTS_ERROR, resp.data.errors)
                         reject(resp.data.errors);
                     }
-                    const projects = resp.data.result.projects;
-                    commit(PROJECTS_SUCCESS, projects);
-                    resolve(projects);
+                    else{
+                        const projects = resp.data.result.projects;
+                        commit(PROJECTS_SUCCESS, projects);
+                        resolve(projects);
+                    }
                 })
                 .catch(err => {
                     commit(PROJECTS_ERROR, err);
@@ -70,14 +86,36 @@ const actions = {
                         commit(PROJECT_INFO_ERROR, resp.data.errors);
                         reject(resp.data.errors);
                     }
-                    commit(PROJECT_INFO_SUCCESS, resp.data.result.project);
-                    resolve(resp);
+                    else{
+                        commit(PROJECT_INFO_SUCCESS, resp.data.result.project);
+                        resolve(resp);
+                    }
                 })
                 .catch(err => {
                     commit(PROJECT_INFO_ERROR, err);
                     reject(err);
                 });
         })
+    },
+    [ADD_PROJECT_PAYMENT]: ({ commit }, payment) => {
+        return new Promise((resolve, reject) => {
+            commit(ADD_PROJECT_PAYMENT);
+            Axios.post(URL_PAYMENTS, payment)
+                .then(resp => {
+                    if(!resp.data.success){
+                        commit(PROJECT_PAYMENT_ERROR, resp.data.errors);
+                        reject(resp.data.errors);
+                    }
+                    else{
+                        commit(PROJECT_PAYMENT_SUCCESS);
+                        resolve(resp);
+                    }
+                })
+                .catch(err => {
+                    commit(PROJECT_PAYMENT_ERROR, err);
+                    reject(err);
+                });
+        });
     }
 };
 

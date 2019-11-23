@@ -25,6 +25,48 @@
             </v-row>
         </div>
         <div v-else>
+            <v-overlay :value="paymentWindowSeen" absolute>
+                <v-card :hidden="!paypalButtonsRendered || isPaymentCompleted || paymentLoading" min-width="500" light>
+                    <v-card-title>Support project</v-card-title>
+                    <v-card-text>
+                        Amount: {{ projectSupportValue }} USD<br>
+                        Project: {{ project_info.title }}
+                    </v-card-text>
+                    <v-card-text>
+                        <div ref="paypalDiv"></div>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn @click="paymentWindowSeen = false">Cancel</v-btn>
+                    </v-card-actions>
+                </v-card>
+                <v-progress-circular indeterminate :hidden="paypalButtonsRendered"></v-progress-circular>
+                <v-progress-circular indeterminate :hidden="!paymentLoading"></v-progress-circular>
+                <v-card light v-if="isPaymentCompleted">
+                    <template v-if="isPaymentSuccess">
+                        <v-card-title>Payment information</v-card-title>
+                        <v-card-text>
+                            <v-alert type="success">Payment was successful</v-alert>
+                            Description: {{ order.purchase_units[0].description }} <br>
+                            Paid: {{ order.purchase_units[0].amount.value }} $ <br>
+                            Status: {{ order.status }} <br>
+                            Date: {{ new Date(order.create_time).toLocaleString() }}
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-btn @click="hidePaymentWindow">Close</v-btn>
+                        </v-card-actions>
+                    </template>
+                    <template v-else>
+                        <v-card-title>Payment information</v-card-title>
+                        <v-card-text>
+                            <v-alert type="error">Payment failed</v-alert>
+                            Error: {{ errors }}
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-btn @click="hidePaymentWindow">Close</v-btn>
+                        </v-card-actions>
+                    </template>
+                </v-card>
+            </v-overlay>
             <v-row>
                 <v-col>
                     <v-card :elevation="5">
@@ -47,9 +89,8 @@
                                 </v-card-text>
                                 <v-card-title>Support</v-card-title>
                                 <v-card-text>
-                                    <v-text-field dense outlined label="Ammount"></v-text-field>
-                                    <v-btn>Support</v-btn>
-                                    <div ref="paypalDiv"></div>
+                                    <v-text-field prefix="$" dense outlined label="Ammount" v-model="projectSupportValue"></v-text-field>
+                                    <v-btn @click="showPaymentWindow">Support</v-btn>
                                 </v-card-text>
                             </v-col>
                         </v-row>
@@ -81,7 +122,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { PROJECT_INFO_REQUEST } from '@/store/mutations'
+import { PROJECT_INFO_REQUEST, ADD_PROJECT_PAYMENT } from '@/store/mutations'
 
 export default {
     name: 'ProjectInfo',
@@ -91,6 +132,12 @@ export default {
             errors: null,
             order: null,
             projectLoaded: false,
+            projectSupportValue: 10.00,
+            paymentWindowSeen: false,
+            paypalButtonsRendered: false,
+            paymentLoading: false,
+            isPaymentSuccess: false,
+            isPaymentCompleted: false,
         };
     },
     mounted(){
@@ -98,10 +145,6 @@ export default {
         this.$store.dispatch(`project/${PROJECT_INFO_REQUEST}`, this.project_id)
         .then(() => {
             this.projectLoaded = true;
-            //const paypal_script = document.createElement('script');
-            //paypal_script.src = 'https://www.paypal.com/sdk/js?client-id=AZEHNLcC0dT0sLnHN_cGvLRk8_o4Oo0dhcbXNe9dGVhpEWSB8SxN0LQpiEkKU3Id5rsKEXXQzuAX5dMR';
-            //paypal_script.addEventListener('load', this.paypalScriptLoaded);
-            //document.body.appendChild(paypal_script);
         })
         .catch(err => {
             this.errors = err;
@@ -114,7 +157,8 @@ export default {
         project_progress(){
             return (this.project_info.current_sum/this.project_info.sum_goal)*100;
         },
-        ...mapGetters('project', ['project_info'])
+        ...mapGetters('project', ['project_info']),
+        ...mapGetters('auth', ['token']),
     },
     filters: {
         full_name(owner){
@@ -122,16 +166,17 @@ export default {
         }
     },
     methods: {
-        paypalScriptLoaded(){
+        renderPaypalButtons(){
             window.paypal.Buttons({
                 createOrder: (data, actions) => {
+                    this.paymentLoading = true;
                     return actions.order.create({
                         purchase_units: [
                             {
-                                description: this.project_info.description,
+                                description: `Support to project "${this.project_info.title}" on the Crownfunding site.`,
                                 amount: {
                                     currency_code: "USD",
-                                    value: 10, 
+                                    value: this.projectSupportValue, 
                                 }
                             }
                         ]
@@ -139,12 +184,50 @@ export default {
                 },
                 onApprove: async (data, actions) => {
                     this.order = await actions.order.capture();
-                    this.data;
+                    const payment = {
+                        date: this.order.create_date,
+                        amount: this.order.purchase_units[0].amount.value,
+                        token: this.token,
+                        title: 'Support project',
+                        description: this.order.purchase_units[0].description,
+                        payment_method: 'paypal',
+                        project_id: this.project_info.id,
+                    };
+                    this.$store.dispatch(`project/${ADD_PROJECT_PAYMENT}`, payment)
+                        .then(() => {
+                            this.isPaymentSuccess = true;
+                            this.paymentLoading = false;
+                            this.isPaymentCompleted = true;
+                        })
+                        .catch(err => {
+                            this.errors = err;
+                            this.isPaymentSuccess = false;
+                            this.paymentLoading = false;
+                            this.isPaymentCompleted = true;
+                        });
                 },
                 onError: err => {
                     this.errors = err;
+                    this.isPaymentSuccess = false;
+                    this.isPaymentCompleted = true;
+                    this.paymentLoading = false;
                 }
             }).render(this.$refs.paypalDiv);
+            this.paypalButtonsRendered = true;
+        },
+        showPaymentWindow(){
+            this.paymentWindowSeen = true;
+            const paypal_script = document.createElement('script');
+            paypal_script.src = 'https://www.paypal.com/sdk/js?client-id=AZEHNLcC0dT0sLnHN_cGvLRk8_o4Oo0dhcbXNe9dGVhpEWSB8SxN0LQpiEkKU3Id5rsKEXXQzuAX5dMR';
+            paypal_script.addEventListener('load', this.renderPaypalButtons);
+            document.body.appendChild(paypal_script);
+        },
+        hidePaymentWindow(){
+            this.paymentWindowSeen = false;
+            this.paypalButtonsRendered = false;
+            this.isPaymentSuccess = false;
+            this.paymentLoading = false;
+            this.isPaymentCompleted = false;
         }
     }
 }

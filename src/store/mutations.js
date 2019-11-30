@@ -25,3 +25,11 @@ export const ADD_PROJECT_ERROR = 'add_project_error';
 export const CATEGORIES_REQUEST = 'categories_request';
 export const CATEGORIES_SUCCESS = 'categories_success';
 export const CATEGORIES_ERROR = 'categories_error';
+
+// comments module
+export const COMMENTS_REQUEST = "comments_request";
+export const COMMENTS_SUCCESS = "comments_success";
+export const COMMENTS_ERROR = "comments_error";
+export const ADD_COMMENT = "add_comment";
+export const ADD_COMMENT_SUCCESS = "add_comment_success";
+export const ADD_COMMENT_ERROR = "add_comment_error";

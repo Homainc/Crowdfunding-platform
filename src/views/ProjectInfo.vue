@@ -100,16 +100,20 @@
             <v-row>
                 <v-col>
                     <v-sheet elevation="2">
-                        <v-tabs color="black" background-color="grey lighten-3">
+                        <v-tabs @change="tabsChanged" color="black" background-color="grey lighten-3">
                             <v-tab>Description</v-tab>
                             <v-tab-item>
                                 <v-card-text>{{ project_info.description }}</v-card-text>
                             </v-tab-item>
                             <v-tab>Comments</v-tab>
                             <v-tab-item class="pa-5">
-                                <v-card color="grey lighten-5">
-                                    <v-card-title>User</v-card-title>
-                                    <v-card-text>User's comment</v-card-text>
+                                <v-form>
+                                    <v-textarea outlined label="Text of comment" v-model="commentText"/>
+                                    <v-btn dark :loading="commentIsAdded" @click="addComment">Submit</v-btn>
+                                </v-form>
+                                <v-card class="mt-5" v-for="c in comments" :key="c.id">
+                                    <v-card-title>{{ c }}</v-card-title>
+                                    <v-card-subtitle>{{  }}</v-card-subtitle>
                                 </v-card>
                             </v-tab-item>
                         </v-tabs>
@@ -122,7 +126,12 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { PROJECT_INFO_REQUEST, ADD_PROJECT_PAYMENT } from '@/store/mutations'
+import { 
+    PROJECT_INFO_REQUEST,
+    ADD_PROJECT_PAYMENT,
+    ADD_COMMENT,
+    COMMENTS_REQUEST
+} from '@/store/mutations';
 
 export default {
     name: 'ProjectInfo',
@@ -138,6 +147,9 @@ export default {
             paymentLoading: false,
             isPaymentSuccess: false,
             isPaymentCompleted: false,
+            commentText: null,
+            commentIsAdded: false,
+            commentsLoaded: false
         };
     },
     mounted(){
@@ -159,6 +171,7 @@ export default {
         },
         ...mapGetters('project', ['project_info']),
         ...mapGetters('auth', ['token']),
+        ...mapGetters('comment', ['comments'])
     },
     filters: {
         full_name(owner){
@@ -229,6 +242,32 @@ export default {
             this.isPaymentSuccess = false;
             this.paymentLoading = false;
             this.isPaymentCompleted = false;
+        },
+        addComment(){
+            const comment = {
+                text: this.commentText,
+                user_token: this.token,
+                project_id: this.project_id
+            };
+            this.$store.dispatch(`comment/${ADD_COMMENT}`, comment)
+                .then(() => {
+                    this.commentIsAdded = false;
+                })
+                .catch(() => {
+                    this.commentError = true;
+                    this.commentIsAdded = false;
+                });
+        },
+        tabsChanged(value){
+            if(!this.commentsLoaded && value === 1){
+                this.$store.dispatch(`comment/${COMMENTS_REQUEST}`, this.project_id)
+                    .then(() => {
+                        this.commentsLoaded = true;
+                    })
+                    .catch(() => {
+                        this.commentsLoaded = false;
+                    });
+            }
         }
     }
 }

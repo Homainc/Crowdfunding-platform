@@ -38,6 +38,11 @@ const routes = [
     path: '/start-project',
     name: 'startproject',
     component: () => import('../views/StartProject.vue'),
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('../views/Profile.vue'),
   }
 ]
 

@@ -1,8 +1,9 @@
 <template>
-    <v-container>
-        <v-card>
+    <v-container class="d-flex justify-center">
+        <v-card min-width="800">
             <v-form ref="form">
                 <v-card-title>Start a project</v-card-title>
+                <v-divider></v-divider>
                 <v-card-text>
                     <v-text-field
                         :rules="[rules.required]" 
@@ -38,7 +39,7 @@
                         ref="payment_secret" outlined label="Paypal Client Id" v-model="project.payment_secret"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
-                    <v-btn @click="startProject">Start</v-btn>
+                    <v-btn dark @click="startProject">Start</v-btn>
                 </v-card-actions>
             </v-form>
         </v-card>
@@ -93,9 +94,7 @@ export default {
         startProject: function(){
             if(isFormValid(this.$refs, this.form)){
                 const project = { ...this.project, current_sum: 0, user_token: this.token };
-                project.categories_id = project.categories_id.map(el => {
-                    return el.id;
-                });
+                project.categories_id = project.categories_id.map(el => el.id);
                 this.$store.dispatch(`project/${ADD_PROJECT}`, project)
                     .then(() => {
                         this.$router.push('/');

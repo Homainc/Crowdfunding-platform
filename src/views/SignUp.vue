@@ -2,6 +2,7 @@
     <v-container id="sign-up" class="d-flex justify-center">
         <v-card width="600">
             <v-card-title>Sign up</v-card-title>
+            <v-divider></v-divider>
             <v-card-text>
                 <v-form ref="form">
                     <v-alert type="error" :value="isFailed">{{ errors }}</v-alert>
@@ -25,7 +26,7 @@
                     </v-dialog>
                     <v-divider/>
                     <v-btn text to="/sign-in">I already have an account</v-btn>
-                    <v-btn :loading="isSigningUp" @click="signUp">Sign Up</v-btn>
+                    <v-btn dark :loading="isSigningUp" @click="signUp">Sign Up</v-btn>
                 </v-form>
             </v-card-text>
         </v-card>

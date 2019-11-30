@@ -2,13 +2,14 @@
     <v-container id="sign-in" class="d-flex justify-center">
         <v-card min-width="500">
             <v-card-title>Sign in</v-card-title>
+            <v-divider></v-divider>
             <v-card-text>
                 <v-form ref="form">
                     <v-alert type="error" :value="isFailed">{{ error }}</v-alert>
                     <v-text-field outlined :rules="[rules.required]" ref="login" v-model="login" label="Login"></v-text-field>
                     <v-text-field outlined :rules="[rules.required]" ref="password" v-model="password" label="Password"></v-text-field>
                     <v-btn text to="/sign-up">Sign Up</v-btn>
-                    <v-btn :loading="isSigning" @click="signIn">Login</v-btn>
+                    <v-btn dark :loading="isSigning" @click="signIn">Login</v-btn>
                 </v-form>
             </v-card-text>
         </v-card>

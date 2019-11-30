@@ -21,7 +21,7 @@
                             {{ user.birthday ? user.birthday : 'Not chosen' }}
                     </v-input>
                     <v-dialog absolute v-model="isDatePickerSeen" z-index="5" max-width="300">
-                    <v-date-picker v-model="user.birthday"></v-date-picker>
+                        <v-date-picker v-model="user.birthday"></v-date-picker>
                     </v-dialog>
                     <v-divider/>
                     <v-btn text to="/sign-in">I already have an account</v-btn>

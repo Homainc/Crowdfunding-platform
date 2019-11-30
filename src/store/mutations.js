@@ -9,7 +9,7 @@ export const USER_REQUEST = 'user_request';
 
 // project module
 export const PROJECTS_REQUEST = 'projects_request';
-export const PROJECTS_SUCCESS = 'project_success';
+export const PROJECTS_SUCCESS = 'projects_success';
 export const PROJECTS_ERROR = 'projects_error';
 export const PROJECT_INFO_REQUEST = 'project_info_request';
 export const PROJECT_INFO_ERROR = 'project_info_error';
@@ -17,3 +17,11 @@ export const PROJECT_INFO_SUCCESS = 'project_info_success';
 export const ADD_PROJECT_PAYMENT = 'add_project_payment';
 export const PROJECT_PAYMENT_SUCCESS = 'project_payment_success';
 export const PROJECT_PAYMENT_ERROR = 'project_payment_error';
+export const ADD_PROJECT = 'add_project';
+export const ADD_PROJECT_SUCCESS = 'add_project_success';
+export const ADD_PROJECT_ERROR = 'add_project_error';
+
+// category module
+export const CATEGORIES_REQUEST = 'categories_request';
+export const CATEGORIES_SUCCESS = 'categories_success';
+export const CATEGORIES_ERROR = 'categories_error';

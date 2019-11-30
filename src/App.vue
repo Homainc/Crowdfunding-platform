@@ -7,6 +7,7 @@
         <v-btn text v-for="link in menu" v-bind:key="link.name" :to="link.path">
           {{ link.name }}
         </v-btn>
+        <v-btn text to="/start-project">Start a project</v-btn>
         <v-btn v-if="!isAuthenticated" text to="/sign-up">Sign Up / Sing In</v-btn>
         <v-btn v-else text @click="logout">Log Out</v-btn>
       </v-toolbar-items>

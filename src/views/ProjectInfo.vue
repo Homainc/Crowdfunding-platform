@@ -162,7 +162,7 @@ export default {
     },
     filters: {
         full_name(owner){
-            return `${owner.first_name} ${owner.middle_name} ${owner.last_name}`;
+            return `${owner.first_name} ${owner.last_name}`;
         }
     },
     methods: {
@@ -198,6 +198,7 @@ export default {
                             this.isPaymentSuccess = true;
                             this.paymentLoading = false;
                             this.isPaymentCompleted = true;
+                            this.project_info.current_sum += payment.amount;
                         })
                         .catch(err => {
                             this.errors = err;

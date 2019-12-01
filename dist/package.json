@@ -1,0 +1,10 @@
+{
+    "name": "crowdfunding",
+    "version": "1.0.0",
+    "description": "Crowdfunfing app",
+    "author": "Phil Khamitsevich",
+    "private": true,
+    "scripts": {
+      "postinstall": "npm install express"
+    }
+  }
